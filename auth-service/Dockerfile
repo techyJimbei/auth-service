@@ -7,15 +7,15 @@ FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
 # Copy Maven wrapper and pom.xml for dependency caching
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
+COPY auth-service/mvnw .
+COPY auth-service/.mvn .mvn
+COPY auth-service/pom.xml .
 
 # Download dependencies (this layer will be cached)
 RUN mvn dependency:go-offline -B
 
 # Copy source code
-COPY src ./src
+COPY auth-service/src ./src
 
 # Build the application (package as uber-jar for easier deployment)
 RUN mvn clean package -DskipTests -Dquarkus.package.type=uber-jar
