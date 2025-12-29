@@ -35,7 +35,7 @@ public class EmailService {
                 """, link);
 
             CreateEmailOptions params = CreateEmailOptions.builder()
-                    .from("Oppex AI <onboarding@resend.dev>") // Replace with your verified domain later
+                    .from("Oppex AI <onboarding@resend.dev>")
                     .to(email)
                     .subject("Verify Your Email - Oppex AI")
                     .html(htmlBody)

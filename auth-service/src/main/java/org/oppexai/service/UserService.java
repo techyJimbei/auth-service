@@ -27,16 +27,12 @@ public class UserService {
     public void signup(String email, String password) {
         LOG.infof("Starting signup process for: %s", email);
 
-        // 1. Perform DB operations in a separate transaction
         String verificationToken = createNewUser(email, password);
 
-        // 2. Send email OUTSIDE of the DB transaction
-        // If this fails or hangs, the user remains in Supabase
         try {
             emailService.sendVerificationEmail(email, verificationToken);
         } catch (Exception e) {
             LOG.errorf("User saved but email failed for %s: %s", email, e.getMessage());
-            // Optional: throw a custom exception or just log it
         }
     }
 
@@ -127,11 +123,6 @@ public class UserService {
     }
 
 
-    /**
-     * Generate a unique verification token
-     *
-     * @return Random UUID string
-     */
     private String generateVerificationToken() {
         return UUID.randomUUID().toString();
     }
