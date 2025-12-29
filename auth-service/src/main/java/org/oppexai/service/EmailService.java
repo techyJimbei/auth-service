@@ -73,7 +73,6 @@ public class EmailService {
             LOG.infof("Verification link: %s", verificationLink);
         } catch (Exception e) {
             LOG.errorf("Failed to send verification email to %s: %s", email, e.getMessage());
-            throw new RuntimeException("Failed to send verification email", e);
         }
     }
 }
