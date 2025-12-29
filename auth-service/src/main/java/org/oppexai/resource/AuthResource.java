@@ -97,16 +97,10 @@ public class AuthResource {
 
     @GET
     @Path("/verify")
-    @Produces(MediaType.TEXT_HTML)  // Changed from JSON
+    @Produces(MediaType.TEXT_HTML)
     public Response verifyEmail(@QueryParam("token") String token) {
         if (token == null || token.isEmpty()) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(buildHtmlResponse(
-                            "Invalid Verification Link",
-                            "The verification link is invalid or expired.",
-                            false
-                    ))
-                    .build();
+            return Response.seeOther(java.net.URI.create("https://oppenxai-auth-service.vercel.app/login?error=invalid_token")).build();
         }
 
         try {
@@ -114,30 +108,11 @@ public class AuthResource {
 
             userService.verifyEmail(token);
 
-            return Response.ok(buildHtmlResponse(
-                    "Email Verified Successfully!",
-                    "Your email has been verified. You can now log in to your account.",
-                    true
-            )).build();
+            return Response.seeOther(java.net.URI.create("https://oppenxai-auth-service.vercel.app/dashboard")).build();
 
-        } catch (NotFoundException e) {
-            LOG.warnf("Verification failed: %s", e.getMessage());
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(buildHtmlResponse(
-                            "Verification Failed",
-                            "Invalid or expired verification token. Please request a new verification email.",
-                            false
-                    ))
-                    .build();
         } catch (Exception e) {
             LOG.errorf("Verification error: %s", e.getMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(buildHtmlResponse(
-                            "Verification Failed",
-                            "An error occurred during verification. Please try again later.",
-                            false
-                    ))
-                    .build();
+            return Response.seeOther(java.net.URI.create("https://oppenxai-auth-service.vercel.app/login?error=verification_failed")).build();
         }
     }
 
