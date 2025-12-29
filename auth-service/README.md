@@ -1,83 +1,75 @@
-# auth-service
+# Auth Service (Oppex AI) - Backend
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+A robust, high-performance authentication microservice built for the Oppex AI ecosystem using **Quarkus**. This service handles user registration, persistence via Supabase, and secure token issuance.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+## 🚀 Features
 
-## Running the application in dev mode
+* **Secure User Registration**: Password hashing using **BCrypt** with constant-time verification.
+* **JWT Authentication**: Stateless authentication using **SmallRye JWT** with **HS256 (Symmetric)** signing.
+* **Email Infrastructure**: API-based delivery using **Resend**, bypassing cloud SMTP port restrictions for reliable delivery.
+* **Cloud Persistence**: Optimized for **PostgreSQL** (Supabase) using Hibernate ORM with Panache.
 
-You can run your application in dev mode that enables live coding using:
+## 🏗️ Architecture
+
+This service is part of a three-tier system:
+1.  **Frontend**: React SPA (Vercel).
+2.  **Middleware**: Node.js Proxy (Render) - Manages stateful sessions.
+3.  **Backend (This Service)**: Quarkus API (Render) - Handles logic and DB.
+
+
+
+## 🛠 Technology Stack
+
+* **Framework**: Quarkus (v3.30.5)
+* **Security**: SmallRye JWT Build (for token generation)
+* **Database**: PostgreSQL / Supabase
+* **JSON Handling**: Jackson (RESTEasy Reactive)
+
+## ⚙️ Configuration & Environment
+
+For production on **Render**, the following environment variables are required:
+
+| Variable | Description |
+| :--- | :--- |
+| `DATABASE_URL` | Supabase JDBC URL (use Port 5432 for Session Pooling) |
+| `JWT_SIGNING_KEY` | 32+ character secret string for HS256 signing |
+| `RESEND_API_KEY` | API Key for email delivery |
+| `QUARKUS_PROFILE` | Set to `prod` to enable production configurations |
+
+### JWT Configuration Note
+To resolve the `SRJWT05009` signature error, the service is configured to use symmetric signing:
+```properties
+smallrye.jwt.new-token.signature-algorithm=HS256
+smallrye.jwt.sign.key=${JWT_SIGNING_KEY}
+
+```
+
+## 🔌 API Endpoints
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `POST` | `/api/auth/signup` | Validates and persists new users; triggers Resend email |
+| `POST` | `/api/auth/login` | Returns a signed JWT and user metadata |
+| `GET` | `/api/auth/verify` | Updates verification status in Supabase |
+
+## 🏃 Local Development
+
+Run the application in development mode with live coding:
 
 ```shell script
 ./mvnw quarkus:dev
+
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+Access the **Dev UI** at [http://localhost:8080/q/dev/](http://localhost:8080/q/dev/) to inspect beans and JWT configurations.
 
-## Packaging and running the application
+## 👤 Author
 
-The application can be packaged using:
+Shruti - [GitHub Profile](https://github.com/techyJimbei)
 
-```shell script
-./mvnw package
+## 🔗 Related Repositories
+
+* [Frontend & Middleware Proxy](https://github.com/techyJimbei/auth-frontend)
+
+
 ```
-
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/auth-service-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- REST resources for Hibernate ORM with Panache ([guide](https://quarkus.io/guides/rest-data-panache)): Generate Jakarta REST resources for your Hibernate Panache entities and repositories
-- JDBC Driver - H2 ([guide](https://quarkus.io/guides/datasource)): Connect to the H2 database via JDBC
-- Hibernate Validator ([guide](https://quarkus.io/guides/validation)): Validate object properties (field, getter) and method parameters for your beans (REST, CDI, Jakarta Persistence)
-- JPAStreamer ([guide](https://quarkiverse.github.io/quarkiverse-docs/quarkus-jpastreamer/dev/)): Express your Hibernate queries as standard Java Streams
-- SmallRye OpenAPI ([guide](https://quarkus.io/guides/openapi-swaggerui)): Document your REST APIs with OpenAPI - comes with Swagger UI
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-- Elytron Security JDBC ([guide](https://quarkus.io/guides/security-jdbc)): Secure your applications with username/password stored in a database
-- SmallRye JWT ([guide](https://quarkus.io/guides/security-jwt)): Secure your applications with JSON Web Token
-- Mailer ([guide](https://quarkus.io/guides/mailer)): Send emails
-- SmallRye JWT Build ([guide](https://quarkus.io/guides/security-jwt-build)): Create JSON Web Token with SmallRye JWT Build API
-- JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
-
-## Provided Code
-
-### REST Data with Panache
-
-Generating Jakarta REST resources with Panache
-
-[Related guide section...](https://quarkus.io/guides/rest-data-panache)
-
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
