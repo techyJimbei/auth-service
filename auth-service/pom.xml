@@ -75,12 +75,17 @@
             <artifactId>quarkus-smallrye-jwt</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.squareup.okio</groupId>
+            <artifactId>okio-jvm</artifactId>
+            <version>3.4.0</version> </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-reactive-pg-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-mailer</artifactId>
+            <groupId>com.resend</groupId>
+            <artifactId>resend-java</artifactId>
+            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
