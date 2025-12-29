@@ -23,33 +23,37 @@ public class UserService {
     @Inject
     EmailService emailService;
 
-    @Transactional
-    public void signup(String email, String password) {
-        LOG.infof("Attempting to register user with email: %s", email);
 
+    public void signup(String email, String password) {
+        LOG.infof("Starting signup process for: %s", email);
+
+        // 1. Perform DB operations in a separate transaction
+        String verificationToken = createNewUser(email, password);
+
+        // 2. Send email OUTSIDE of the DB transaction
+        // If this fails or hangs, the user remains in Supabase
+        try {
+            emailService.sendVerificationEmail(email, verificationToken);
+        } catch (Exception e) {
+            LOG.errorf("User saved but email failed for %s: %s", email, e.getMessage());
+            // Optional: throw a custom exception or just log it
+        }
+    }
+
+    @Transactional
+    protected String createNewUser(String email, String password) {
         if (userRepository.existsByEmail(email)) {
-            LOG.warnf("Registration failed: Email already exists - %s", email);
             throw new BadRequestException("Email already registered");
         }
 
-        String passwordHash = PasswordUtil.hashPassword(password);
-
-        String verificationToken = generateVerificationToken();
-
-        User user = new User(email, passwordHash);
+        String verificationToken = UUID.randomUUID().toString();
+        User user = new User(email, PasswordUtil.hashPassword(password));
         user.setIsVerified(false);
         user.setVerificationToken(verificationToken);
 
         userRepository.persist(user);
-
-        LOG.infof("User registered successfully: %s", email);
-
-        try {
-            emailService.sendVerificationEmail(email, verificationToken);
-            LOG.infof("Verification email sent to: %s", email);
-        } catch (Exception e) {
-            LOG.errorf("Failed to send verification email to %s: %s", email, e.getMessage());
-        }
+        LOG.infof("User persisted to Supabase: %s", email);
+        return verificationToken;
     }
 
     @Transactional
